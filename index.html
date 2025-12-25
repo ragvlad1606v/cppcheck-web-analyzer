@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cppcheck Web Analyzer</title>
+
+    <style>
+        :root {
+
+            --bg: #020805;
+            --card: #06140c;
+            --text: #e6fff2;
+            --accent: linear-gradient(90deg, #00ff99, #00ffaa, #22ff88);
+        }
+
+        .light {
+
+            --bg: #f3fff9;
+            --card: #ffffff;
+            --text: #064025;
+            --accent: linear-gradient(90deg, #22c55e, #4ade80, #86efac);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+
+        .card {
+            width: 650px;
+            background: var(--card);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 255, 153, 0.25);
+            text-align: center;
+            position: relative;
+            border: 2px solid transparent;
+            border-image: var(--accent) 1;
+        }
+
+
+        h2 {
+            background: var(--accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+
+
+        input,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            border: none;
+        }
+
+        input {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid transparent;
+            border-image: var(--accent) 1;
+        }
+
+        button {
+            background: var(--accent);
+            color: black;
+            cursor: pointer;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+
+        #output {
+            margin-top: 15px;
+            background: var(--bg);
+            padding: 15px;
+            height: 260px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            border-image: var(--accent) 1;
+            text-align: left;
+            transition: background 0.3s ease;
+        }
+
+
+        .toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #00ff99;
+        }
+
+        .light .toggle {
+            color: #22c55e;
+        }
+
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+
+        <div class="toggle" onclick="toggleMode()">🌗</div>
+
+        <h2>Cppcheck Web Analyzer</h2>
+
+        <input type="file" id="file">
+
+        <div class="row">
+            <button onclick="scan()">Analyze</button>
+            <button onclick="clearOutput()">Clear</button>
+        </div>
+
+        <div id="output"></div>
+
+        <button onclick="addFile()">Add Another File</button>
+
+        <div class="footer">© ragvlad1606v</div>
+
+    </div>
+
+    <script>
+        function scan() {
+            let f = document.getElementById("file").files[0];
+            if (!f) return;
+
+            let data = new FormData();
+            data.append("file", f);
+
+            document.getElementById("output").innerText = "Scanning...";
+
+            fetch("/scan", { method: "POST", body: data })
+                .then(r => r.text())
+                .then(t => document.getElementById("output").innerText = t);
+        }
+
+        function clearOutput() {
+            document.getElementById("output").innerText = "";
+        }
+
+        function addFile() {
+            document.getElementById("file").value = "";
+        }
+
+        function toggleMode() {
+            document.body.classList.toggle("light");
+        }
+    </script>
+
+</body>
+
+</html>
