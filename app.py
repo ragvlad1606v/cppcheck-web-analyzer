@@ -1,9 +1,9 @@
-from flask import Flask, send_from_directory, request
+from flask import Flask, request, send_from_directory
 import subprocess, os
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ALLOWED = (".c", ".cpp", ".h")
@@ -23,12 +23,17 @@ def scan():
     file.save(filepath)
 
     result = subprocess.run(
-        ["cppcheck", "--enable=all", filepath],
+        [
+            "cppcheck",
+            "--enable=all",
+            "--suppress=missingIncludeSystem",
+            filepath
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
     )
 
-    return result.stderr
+    return result.stderr or "No issues found."
 
 app.run(host="0.0.0.0", port=5000)
